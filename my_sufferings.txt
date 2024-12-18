@@ -1,0 +1,1 @@
+1. Put middleware.ts into /src/app (wrong) instead of /src (correct)

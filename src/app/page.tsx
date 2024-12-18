@@ -40,7 +40,7 @@ export default function Home() {
               <p>
                 Drag &#39;n&#39; drop a file here, or click to select a file
               </p>
-              <p>Supported formats: MP3, Wav, M4A (max 25MB)</p>
+              <p>Supported formats: MP3, WAV, M4A (max 25MB)</p>
             </div>
           )}
         </div>
