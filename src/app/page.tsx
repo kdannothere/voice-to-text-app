@@ -1,101 +1,127 @@
+"use client";
+
 import Image from "next/image";
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+
+// defaults
+const TIER_1 = 5;
+const TIER_2 = 20;
+const TIER_3 = 50;
+const TIER_4 = 100;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [tier, setTier] = useState(TIER_1);
+  const [files, setFiles] = useState([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 1) {
+      alert("Only one file allowed. Please select a single file.");
+      return;
+    }
+    setFiles(acceptedFiles[0]);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  return (
+    <div className='flex justify-center items-center min-h-[100vh]'>
+      <div className='w-[500px] flex flex-col items-center px-8 my-20 overflow-y-auto'>
+        <h1 className='font-bold text-3xl mb-8'>Audio Transcription</h1>
+        <div
+          className='mb-8 px-8 py-12 border-2 border-dashed cursor-pointer'
+          {...getRootProps()}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p className='text-gray-500'>Drop the files here ...</p>
+          ) : (
+            <div className='text-gray-500 text-sm'>
+              <p>
+                Drag &#39;n&#39; drop a file here, or click to select a file
+              </p>
+              <p>Supported formats: MP3, Wav, M4A (max 25MB)</p>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div>
+          <h2 className='mb-1 text-center font-bold text-2xl'>Support Our Work</h2>
+          <p className='text-center mb-4 text-gray-500 text-sm'>
+            Choose your support tier and help us keep this service running
+          </p>
+          <p className='mb-1 text-center font-bold text-2xl'>
+            <span>$</span>
+            <span>{tier}</span>
+          </p>
+          <p className='flex flex-nowrap justify-center mb-4'>
+            <Image
+              src={"/coffee-black.png"}
+              alt={"Coffee icon"}
+              width={24}
+              height={24}
+            ></Image>
+            <span className='ml-2 text-gray-500 text-sm'>
+              Basic Support - Help us keep the lights on
+            </span>
+          </p>
+          <div className='tier-list flex justify-center mb-5'>
+            <Tier
+              active={tier === TIER_1}
+              chooseTier={() => setTier(TIER_1)}
+              price={TIER_1}
+            />
+            <Tier
+              active={tier === TIER_2}
+              chooseTier={() => setTier(TIER_2)}
+              price={TIER_2}
+            />
+            <Tier
+              active={tier === TIER_3}
+              chooseTier={() => setTier(TIER_3)}
+              price={TIER_3}
+            />
+            <Tier
+              active={tier === TIER_4}
+              chooseTier={() => setTier(TIER_4)}
+              price={TIER_4}
+            />
+          </div>
+          <form className='flex' action=''>
+            <button className='w-full mx-6 py-2 text-center mb-4 text-white bg-blue-500 hover:bg-blue-600 rounded-md'>
+              <span className='pr-1'>Support with</span>
+              <span>$</span>
+              <span>{tier}</span>
+            </button>
+          </form>
+          <p className='text-center text-xs text-gray-500'>
+            Secure payment powered by Stripe
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Tier({
+  price,
+  chooseTier,
+  active,
+}: {
+  price: number;
+  chooseTier: () => void;
+  active: boolean;
+}) {
+  return (
+    <div
+      onClick={chooseTier}
+      className={`mx-4 p-2 flex-1 text-center rounded-lg cursor-pointer hover:bg-blue-300 ${
+        active ? "bg-blue-500 text-white" : "bg-gray-200"
+      }`}
+    >
+      <p>
+        <span>$</span>
+        <span>{price}</span>
+      </p>
     </div>
   );
 }
