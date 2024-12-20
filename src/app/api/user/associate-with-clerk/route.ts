@@ -25,12 +25,12 @@ export async function POST(req: Request) {
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { clerkId: clerkUser.id },  // Check for existing user by clerkId
+            { clerkId: clerkUser.id }, // Check for existing user by clerkId
             { email: clerkUser.email }, // Check for existing user by email
           ],
         },
       });
-      
+
       if (!existingUser) {
         console.log("Create a new user");
         const newUser = {

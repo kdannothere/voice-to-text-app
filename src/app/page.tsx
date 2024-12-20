@@ -3,46 +3,7 @@
 import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { useAuth, useSession, useUser } from "@clerk/nextjs";
-// import { PrismaClient } from "@prisma/client";
-// import { User } from "./utils/User";
-// import { useRouter } from "next/compat/router";
-
-// const prisma = new PrismaClient();
-
-// export async function associateUserWithClerk(clerkUser: any) {
-//   if (!clerkUser) return;
-//   try {
-//     const users = await prisma.user.findMany({
-//       where: {
-//         clerkId: null,
-//       },
-//     });
-
-//     // update clerkId for existed user
-//     if (users.length) {
-//       await prisma.user.update({
-//         where: {
-//           id: users[0].id,
-//         },
-//         data: {
-//           clerkId: clerkUser.id,
-//         },
-//       });
-//     }
-
-//     // create a new user
-//     if (!users.length) {
-//       const newUser: User = { email: clerkUser.emailAddresses[0].emailAddress, clerkId: clerkUser.id };
-//       await prisma.user.create({
-//         data: newUser,
-//       });
-//     }
-//   } catch (error) {
-//     console.error("Error updating ages:", error);
-//     // Handle the error appropriately (e.g., log, retry, etc.)
-//   }
-// }
+import { useUser } from "@clerk/nextjs";
 
 // defaults
 const TIER_1 = 5;
@@ -65,10 +26,7 @@ export default function Home() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  // const router = useRouter();
-  // const session = useSession();
-
-  const handleAssociateUser = async (user:any) => {
+  const handleAssociateUser = async (user: any) => {
     if (!user) return;
 
     const clerkUser = {
@@ -86,13 +44,11 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        alert('Something went wrong...')
+        alert("Something went wrong...");
         console.error(`HTTP error! status: ${response.status}`);
       }
-      
-      
     } catch (error) {
-      alert('Something went wrong...')
+      alert("Something went wrong...");
       console.error("Error associating user:", error);
     }
   };
