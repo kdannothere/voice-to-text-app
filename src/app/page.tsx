@@ -1,8 +1,48 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { useAuth, useSession, useUser } from "@clerk/nextjs";
+// import { PrismaClient } from "@prisma/client";
+// import { User } from "./utils/User";
+// import { useRouter } from "next/compat/router";
+
+// const prisma = new PrismaClient();
+
+// export async function associateUserWithClerk(clerkUser: any) {
+//   if (!clerkUser) return;
+//   try {
+//     const users = await prisma.user.findMany({
+//       where: {
+//         clerkId: null,
+//       },
+//     });
+
+//     // update clerkId for existed user
+//     if (users.length) {
+//       await prisma.user.update({
+//         where: {
+//           id: users[0].id,
+//         },
+//         data: {
+//           clerkId: clerkUser.id,
+//         },
+//       });
+//     }
+
+//     // create a new user
+//     if (!users.length) {
+//       const newUser: User = { email: clerkUser.emailAddresses[0].emailAddress, clerkId: clerkUser.id };
+//       await prisma.user.create({
+//         data: newUser,
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Error updating ages:", error);
+//     // Handle the error appropriately (e.g., log, retry, etc.)
+//   }
+// }
 
 // defaults
 const TIER_1 = 5;
@@ -11,6 +51,7 @@ const TIER_3 = 50;
 const TIER_4 = 100;
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
   const [tier, setTier] = useState(TIER_1);
   const [files, setFiles] = useState([]);
 
@@ -23,6 +64,44 @@ export default function Home() {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  // const router = useRouter();
+  // const session = useSession();
+
+  const handleAssociateUser = async (user:any) => {
+    if (!user) return;
+
+    const clerkUser = {
+      id: user.id,
+      email: user.emailAddresses[0].emailAddress,
+    };
+
+    try {
+      const response = await fetch("/api/user/associate-with-clerk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(clerkUser),
+      });
+
+      if (!response.ok) {
+        alert('Something went wrong...')
+        console.error(`HTTP error! status: ${response.status}`);
+      }
+      
+      
+    } catch (error) {
+      alert('Something went wrong...')
+      console.error("Error associating user:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoaded) {
+      handleAssociateUser(user);
+    }
+  });
 
   return (
     <div className='flex justify-center items-center min-h-[100vh]'>
@@ -45,7 +124,9 @@ export default function Home() {
           )}
         </div>
         <div>
-          <h2 className='mb-1 text-center font-bold text-2xl'>Support Our Work</h2>
+          <h2 className='mb-1 text-center font-bold text-2xl'>
+            Support Our Work
+          </h2>
           <p className='text-center mb-4 text-gray-500 text-sm'>
             Choose your support tier and help us keep this service running
           </p>
