@@ -18,6 +18,7 @@ model User {
   email   String   @unique
   clerkId String?  @unique
   records Record[]
+  credits Int      @default(0)
 }
 
 model Record {
@@ -25,5 +26,5 @@ model Record {
   title    String
   content  String
   author   User   @relation(fields: [authorId], references: [id])
-  authorId Int    @unique @map("authorId")
+  authorId Int    @map("authorId")
 }

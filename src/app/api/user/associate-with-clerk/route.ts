@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../prismaClient";
 import { NextResponse } from "next/server";
-const prisma = new PrismaClient();
+
 
 export async function POST(req: Request) {
-  const clerkUser = await req.json();
   try {
+    const clerkUser = await req.json();
     const users = await prisma.user.findMany({
       where: {
         clerkId: null,
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
       });
 
       if (!existingUser) {
-        console.log("Create a new user");
         const newUser = {
           email: clerkUser.email,
           clerkId: clerkUser.id,
