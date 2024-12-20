@@ -12,6 +12,8 @@ const TIER_3 = 50;
 const TIER_4 = 100;
 
 export default function Home() {
+  const [isLoadedInit, setIsLoadedInit] = useState(false);
+
   const { user, isLoaded } = useUser();
   const [tier, setTier] = useState(TIER_1);
   const [files, setFiles] = useState([]);
@@ -53,11 +55,16 @@ export default function Home() {
     }
   };
 
+  // prevent unnecessary db calls
   useEffect(() => {
-    if (isLoaded) {
+    setIsLoadedInit(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoadedInit && user) {
       handleAssociateUser(user);
     }
-  });
+  }, [isLoadedInit, user]);
 
   return (
     <div className='flex justify-center items-center min-h-[100vh]'>
