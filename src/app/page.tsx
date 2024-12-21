@@ -115,7 +115,10 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({record:record, recordsNumber: records.length || 0}),
+        body: JSON.stringify({
+          record: record,
+          recordsNumber: records.length || 0,
+        }),
       });
 
       if (!response.ok) {
@@ -270,13 +273,19 @@ export default function Home() {
               price={TIER_4}
             />
           </div>
-          <form className='flex' action=''>
+          {/* <div className='flex'>
             <button className='w-full mx-6 py-2 text-center mb-4 text-white bg-blue-500 hover:bg-blue-600 rounded-md'>
               <span className='pr-1'>Support with</span>
               <span>$</span>
               <span>{tier}</span>
             </button>
-          </form>
+          </div> */}
+          <div className='flex justify-center mb-4 py-2'>
+            <stripe-buy-button
+              buy-button-id='buy_btn_1QYRySEPQ7pJs9Cfb9r1qreL'
+              publishable-key='pk_test_51QYDdVEPQ7pJs9Cf7V8ixrnVOandmfAg9sn1Pk9Ji7Jll4bNiXrWc4tpyRegKte6noEKKoql6L04WLr4dbruny2800av2fFV0W'
+            ></stripe-buy-button>
+          </div>
           <p className='text-center text-xs text-gray-500'>
             Secure payment powered by Stripe
           </p>
