@@ -233,14 +233,16 @@ export default function CompletePage({
             id='view-details'
             target='_blank'
           >
-            View details
+            View payment details
           </a>
         )}
         <Link
           className='border-2 p-2 m-2 rounded-lg bg-slate-200 hover:bg-slate-300 flex w-fit'
           href='/'
+          // reload page in order to update the credits value
+          onClick={() => (window.location.href = "/")}
         >
-          Back
+          Back to service
         </Link>
       </div>
     </div>

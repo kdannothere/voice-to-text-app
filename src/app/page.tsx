@@ -221,7 +221,7 @@ export default function Home() {
               height={24}
             ></Image>
             <span className='ml-2 text-gray-500 text-sm'>
-              Basic Support - Help us keep the lights on
+              You will get {tier * 10} credits
             </span>
           </p>
           <div className='tier-list flex justify-center mb-5'>
@@ -248,10 +248,7 @@ export default function Home() {
           </div>
           <div className='flex'>
             <Link
-              href={{
-                pathname: "/payment",
-                query: JSON.stringify({ tier: tier.toString() }),
-              }}
+              href={`/payment?tier=${tier}`}
               className='w-full mx-6 py-2 text-center mb-4 text-white bg-blue-500 hover:bg-blue-600 rounded-md'
             >
               <span className='pr-1'>Support with</span>

@@ -6,11 +6,11 @@ import {
 } from "@stripe/react-stripe-js";
 import { StripePaymentElementOptions } from "@stripe/stripe-js";
 
-export default function CheckoutForm() {
+export default function CheckoutForm({ tier }: { tier: string }) {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -28,7 +28,7 @@ export default function CheckoutForm() {
       elements,
       confirmParams: {
         // path to payment completion page
-        return_url: `${window.location.origin}/payment`,
+        return_url: `${window.location.origin}/payment?tier=${tier}`,
       },
     });
 
@@ -38,7 +38,7 @@ export default function CheckoutForm() {
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message);
+      setMessage(error.message || "");
     } else {
       setMessage("An unexpected error occurred.");
     }

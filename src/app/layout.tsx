@@ -36,14 +36,16 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <div className='absolute right-0 top-0 pr-6 pt-6 pl-5 pb-4 rounded-bl-[2rem] border-l-8 border-b-8 font-bold hover:animate-pulse'>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <Credits />
+          <div className="flex justify-end">
+            <div className='pr-6 pt-6 pl-5 pb-4 rounded-bl-[2rem] border-l-8 border-b-8 font-bold hover:animate-pulse'>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+              <Credits />
+            </div>
           </div>
           {children}
         </body>

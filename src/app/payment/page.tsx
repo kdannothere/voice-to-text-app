@@ -9,7 +9,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./../components/CheckoutForm";
 import CompletePage from "./../components/CompletePage";
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 // avoid recreating the Stripe object on every render.
@@ -26,13 +26,14 @@ function getPrice(value: string): number {
 }
 
 export default function Page() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [tier, setTier] = useState(searchParams.get('tier') || '1');
+  const [tier, setTier] = useState(searchParams.get("tier") || "");
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
-  const connectToStripe = useCallback(async (tier) => {
+  const connectToStripe = useCallback(async () => {
     try {
       const response = await fetch("/api/payment/pay", {
         method: "POST",
@@ -58,16 +59,18 @@ export default function Page() {
       alert("Something went wrong...");
       console.error("Error connect to Stripe:", error);
     }
-  }, []);
+  }, [tier]);
 
   useEffect(() => {
-    console.log(tier);
-    if (!tier) {
-      return;
-    }
+    // go to main page because user didn't choose a tier
+  if (!tier) {
+    alert("Choose how much you want to pay, please.");
+    router.push("/");
+    return;
+  }
     // Create PaymentIntent as soon as the page loads
-    connectToStripe(tier);
-  }, [connectToStripe, tier]);
+    connectToStripe();
+  }, [connectToStripe, router, tier]);
 
   useEffect(() => {
     setConfirmed(searchParams.get("payment_intent_client_secret") !== null);
@@ -89,7 +92,9 @@ export default function Page() {
             <p className='text-center'>Loading...</p>
           ) : (
             <>
-              {user ? (
+              {!user ? (
+                <p className='text-center'>Sign in or register, please...</p>
+              ) : (
                 <>
                   <Elements options={options} stripe={stripePromise}>
                     {confirmed ? (
@@ -99,12 +104,10 @@ export default function Page() {
                         userEmail={user.emailAddresses[0].emailAddress}
                       />
                     ) : (
-                      <CheckoutForm />
+                      <CheckoutForm tier={tier} />
                     )}
                   </Elements>
                 </>
-              ) : (
-                <p className='text-center'>Sign in or register, please...</p>
               )}
             </>
           )}
