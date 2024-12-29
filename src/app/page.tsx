@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, FormEvent } from "react";
 import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/nextjs";
 import { Record } from "./utils/Record";
+import Link from "next/link";
 
 // defaults
 const TIER_1 = 5;
@@ -18,10 +19,8 @@ export default function Home() {
   const { user, isLoaded } = useUser();
   const [tier, setTier] = useState(TIER_1);
   const [file, setFile] = useState(null);
-  const [result, setResult] = useState(
-    "Blanditiis dolores minima, magnam tempore possimus ex voluptates obcaecati iusto nesciunt, quos dolorum architecto, consectetur beatae quidem qui amet temporibus! Eligendi."
-  );
-  const [records, setRecords] = useState();
+  const [result, setResult] = useState("");
+  const [records, setRecords] = useState<Record[]>([]);
   const [loadingRecords, setLoadingRecords] = useState(true);
 
   const onDrop = useCallback((acceptedFile) => {
@@ -50,37 +49,6 @@ export default function Home() {
       if (!response.ok) {
         alert("Something went wrong...");
         console.error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      alert("Something went wrong...");
-      console.error("Error associating user:", error);
-    }
-  };
-
-  const handleAddCreditsToUser = async (user: any) => {
-    if (!user) return;
-
-    const clerkUser = {
-      id: user.id,
-      email: user.emailAddresses[0].emailAddress,
-    };
-
-    try {
-      const response = await fetch("/api/user/add-credits", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ clerkUser: clerkUser, credits: tier * 10 }),
-      });
-
-      if (!response.ok) {
-        alert("Something went wrong...");
-        console.error(`HTTP error! status: ${response.status}`);
-      }
-      const result = (await response.json()).result;
-      if (result === "success") {
-        alert("Success");
       }
     } catch (error) {
       alert("Something went wrong...");
@@ -190,8 +158,10 @@ export default function Home() {
 
   return (
     <div className='flex justify-center items-center min-h-[100vh]'>
-      {records && <SidePanel records={records} />}
-      <div className='w-[500px] flex flex-col items-center px-8 my-20 overflow-y-auto'>
+      <SidePanel records={records} />
+      <div
+        className={`w-[500px] flex flex-col items-center px-8 my-20 overflow-y-auto`}
+      >
         <h1 className='font-bold text-3xl mb-8'>Audio Transcription</h1>
         <div
           className='mb-8 px-8 py-12 border-2 border-dashed cursor-pointer'
@@ -210,6 +180,9 @@ export default function Home() {
           )}
         </div>
         {file && (
+          // todo remake button.
+          // todo handle such cases as:
+          // empty record, not registered user
           <form
             onSubmit={(event) =>
               handleStoreRecord(event, user, result, records)
@@ -273,18 +246,18 @@ export default function Home() {
               price={TIER_4}
             />
           </div>
-          {/* <div className='flex'>
-            <button className='w-full mx-6 py-2 text-center mb-4 text-white bg-blue-500 hover:bg-blue-600 rounded-md'>
+          <div className='flex'>
+            <Link
+              href={{
+                pathname: "/payment",
+                query: JSON.stringify({ tier: tier.toString() }),
+              }}
+              className='w-full mx-6 py-2 text-center mb-4 text-white bg-blue-500 hover:bg-blue-600 rounded-md'
+            >
               <span className='pr-1'>Support with</span>
               <span>$</span>
               <span>{tier}</span>
-            </button>
-          </div> */}
-          <div className='flex justify-center mb-4 py-2'>
-            <stripe-buy-button
-              buy-button-id='buy_btn_1QYRySEPQ7pJs9Cfb9r1qreL'
-              publishable-key='pk_test_51QYDdVEPQ7pJs9Cf7V8ixrnVOandmfAg9sn1Pk9Ji7Jll4bNiXrWc4tpyRegKte6noEKKoql6L04WLr4dbruny2800av2fFV0W'
-            ></stripe-buy-button>
+            </Link>
           </div>
           <p className='text-center text-xs text-gray-500'>
             Secure payment powered by Stripe
@@ -325,7 +298,7 @@ function SidePanel({ records }: { records: Record[] }) {
   return (
     <>
       {show ? (
-        <div className='side-panel w-80 absolute left-5 top-5 border-4 p-4 pb-8 border-dashed bg-slate-100'>
+        <div className='side-panel w-80 absolute left-5 top-5 border-4 p-4 pb-8 border-dashed rounded-md bg-slate-100'>
           <Image
             onClick={() => setShow(!show)}
             className='cursor-pointer'

@@ -8,6 +8,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import Credits from "./components/Credits";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,6 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang='en'>
-        <head>
-          <script async src='https://js.stripe.com/v3/buy-button.js'></script>
-        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
@@ -45,6 +43,7 @@ export default function RootLayout({
             <SignedIn>
               <UserButton />
             </SignedIn>
+            <Credits />
           </div>
           {children}
         </body>

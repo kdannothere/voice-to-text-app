@@ -19,7 +19,7 @@ export async function POST(req: Request) {
           id: user.id,
         },
         data: {
-          credits: credits,
+          credits: user.credits + credits,
         },
       });
     }
