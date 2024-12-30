@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback, useEffect, FormEvent } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/nextjs";
 import { Record } from "./utils/Record";
 import Link from "next/link";
+import Tier from "./components/Tier";
+import SidePanel from "./components/SidePanel";
 
 // defaults
 const TIER_1 = 5;
@@ -16,7 +18,7 @@ const TIER_4 = 100;
 export default function Home() {
   const [isLoadedInit, setIsLoadedInit] = useState(false);
 
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const [tier, setTier] = useState(TIER_1);
   const [file, setFile] = useState(null);
   const [result, setResult] = useState("");
@@ -56,58 +58,60 @@ export default function Home() {
     }
   };
 
-  const handleStoreRecord = async (
-    event: FormEvent<HTMLFormElement>,
-    user: any,
-    result: string,
-    records: any
-  ) => {
-    event.preventDefault();
-    if (!user) {
-      alert("Login or register, please.");
-      return;
-    }
-    if (records.length === 2) {
-      alert("It's time to pay, body");
-      return;
-    }
-
-    const record = {
-      title: result.substring(0, 40),
-      content: result,
-      clerkId: user.id,
-    };
-    try {
-      const response = await fetch("/api/record/store", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          record: record,
-          recordsNumber: records.length || 0,
-        }),
-      });
-
-      if (!response.ok) {
-        alert("Something went wrong...");
-        console.error(`HTTP error! status: ${response.status}`);
-      } else {
-        const result = (await response.json()).result;
-
-        // update records history in the side panel
-        if (result === "success") {
-          fetchRecords(user);
-        }
-        if (result === "no-credits") {
-          alert("Not enough credits. Please buy more.");
-        }
+  const handleStoreRecord = useCallback(
+    async (user: any, result: string, records: any) => {
+      if (!user) {
+        alert("Login or register, please.");
+        return;
       }
-    } catch (error) {
-      alert("Something went wrong...");
-      console.error("Error storing the record:", error);
-    }
-  };
+      if (records.length === 2) {
+        alert("It's time to pay, body.");
+        return;
+      }
+
+      if (!records.length) {
+        alert("Load the file first, please.");
+        return;
+      }
+
+      const record = {
+        title: result.substring(0, 40),
+        content: result,
+        clerkId: user.id,
+      };
+      try {
+        const response = await fetch("/api/record/store", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            record: record,
+            recordsNumber: records.length || 0,
+          }),
+        });
+
+        if (!response.ok) {
+          alert("Something went wrong...");
+          console.error(`HTTP error! status: ${response.status}`);
+        } else {
+          const result = (await response.json()).result;
+
+          // update records history in the side panel
+          if (result === "success") {
+            fetchRecords(user);
+          }
+          if (result === "no-credits") {
+            alert("Not enough credits. Please buy more.");
+          }
+        }
+      } catch (error) {
+        alert("Something went wrong...");
+        console.error("Error storing the record:", error);
+      }
+    },
+    []
+  );
 
   const fetchRecords = async (user: any) => {
     if (!user) {
@@ -180,19 +184,14 @@ export default function Home() {
           )}
         </div>
         {file && (
-          // todo remake button.
-          // todo handle such cases as:
-          // empty record, not registered user
-          <form
-            onSubmit={(event) =>
-              handleStoreRecord(event, user, result, records)
-            }
-            className='flex'
-          >
-            <button className='w-full mx-6 px-6 py-2 text-center mb-8 text-white bg-blue-500 hover:bg-blue-600 rounded-md'>
+          <div className='flex'>
+            <button
+              onClick={() => handleStoreRecord(user, result, records)}
+              className='w-full mx-6 px-6 py-2 text-center mb-8 text-white bg-blue-500 hover:bg-blue-600 rounded-md'
+            >
               Convert
             </button>
-          </form>
+          </div>
         )}
         <div className='mb-8'>
           {result && (
@@ -262,74 +261,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Tier({
-  price,
-  chooseTier,
-  active,
-}: {
-  price: number;
-  chooseTier: () => void;
-  active: boolean;
-}) {
-  return (
-    <div
-      onClick={chooseTier}
-      className={`mx-4 p-2 flex-1 text-center rounded-lg cursor-pointer hover:bg-blue-300 ${
-        active ? "bg-blue-500 text-white" : "bg-gray-200"
-      }`}
-    >
-      <p>
-        <span>$</span>
-        <span>{price}</span>
-      </p>
-    </div>
-  );
-}
-
-function SidePanel({ records }: { records: Record[] }) {
-  const [show, setShow] = useState(false);
-  let key = 1;
-  return (
-    <>
-      {show ? (
-        <div className='side-panel w-80 absolute left-5 top-5 border-4 p-4 pb-8 border-dashed rounded-md bg-slate-100'>
-          <Image
-            onClick={() => setShow(!show)}
-            className='cursor-pointer'
-            src={"/side-panel.png"}
-            alt={"Side panel"}
-            width={24}
-            height={24}
-          ></Image>
-          <h3 className='font-bold text-lg my-4'>History</h3>
-          {records.length ? (
-            <ul>
-              {records.slice(0, 10).map((record) => (
-                <li
-                  className='text-nowrap overflow-hidden text-ellipsis'
-                  key={key++}
-                >{`${key}. ${record.title}`}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>There are no records yet.</p>
-          )}
-        </div>
-      ) : (
-        <div className='side-panel absolute left-10 top-10'>
-          <Image
-            onClick={() => setShow(!show)}
-            className='cursor-pointer'
-            src={"/side-panel.png"}
-            alt={"Side panel"}
-            width={24}
-            height={24}
-          ></Image>
-        </div>
-      )}
-    </>
   );
 }
