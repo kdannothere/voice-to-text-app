@@ -18,10 +18,6 @@ export async function POST(req: Request) {
       },
     });
 
-    if (user && user.credits < 1 && data.recordsNumber > 1) {
-      return new NextResponse(JSON.stringify({ result: "no-credits" }));
-    }
-
     // Create Record
     if (!recordExists && user) {
       const newRecord = {

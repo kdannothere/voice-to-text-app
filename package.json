@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.5",
+    "@google-cloud/speech": "^6.7.0",
     "@prisma/client": "^6.1.0",
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.4.0",
+    "music-metadata": "^10.6.4",
     "next": "^15.1.0",
     "pg": "^8.13.1",
     "react": "^19.0.0",

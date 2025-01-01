@@ -19,7 +19,7 @@ model User {
   clerkId  String?   @unique @map("clerk_id")
   records  Record[]
   payments Payment[]
-  credits  Int       @default(0)
+  credits  Int       @default(2)
 
   @@map("users")
 }

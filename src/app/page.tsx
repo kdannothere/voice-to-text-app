@@ -4,10 +4,14 @@ import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/nextjs";
+import { IFormat, parseBuffer } from "music-metadata";
 import { Record } from "./utils/Record";
 import Link from "next/link";
 import Tier from "./components/Tier";
 import SidePanel from "./components/SidePanel";
+import { isFileFormatSupported } from "./utils/format-util";
+import { Language } from "./utils/languages";
+import LanguageSelector, { loadLanguage } from "./components/LanguageSelector";
 
 // defaults
 const TIER_1 = 5;
@@ -17,16 +21,44 @@ const TIER_4 = 100;
 
 export default function Home() {
   const [isLoadedInit, setIsLoadedInit] = useState(false);
-
+  const [isConverting, setIsConverting] = useState(false);
   const { user } = useUser();
   const [tier, setTier] = useState(TIER_1);
   const [file, setFile] = useState(null);
+  const [fileEncoded, setFileEncoded] = useState("");
+  const [fileMeta, setFileMeta] = useState<IFormat | null>(null);
   const [result, setResult] = useState("");
   const [records, setRecords] = useState<Record[]>([]);
   const [loadingRecords, setLoadingRecords] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(
+    null
+  );
 
   const onDrop = useCallback((acceptedFile) => {
-    setFile(acceptedFile);
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      try {
+        if (reader.result) {
+          const arrayBuffer = reader.result as ArrayBuffer;
+          const base64EncodedAudio =
+            Buffer.from(arrayBuffer).toString("base64");
+          setFileEncoded(base64EncodedAudio);
+          setFile(acceptedFile[0]);
+          const { format } = await parseBuffer(Buffer.from(arrayBuffer));
+          setFileMeta(format);
+        }
+      } catch (error) {
+        console.error("Error reading audio properties:", error);
+      }
+    };
+    if (isFileFormatSupported(acceptedFile[0].name)) {
+      reader.readAsArrayBuffer(acceptedFile[0]);
+    } else {
+      setFile(null);
+      setFileEncoded("");
+      alert("File format is not supported.");
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -60,26 +92,12 @@ export default function Home() {
 
   const handleStoreRecord = useCallback(
     async (user: any, result: string, records: any) => {
-      if (!user) {
-        alert("Login or register, please.");
-        return;
-      }
-      if (records.length === 2) {
-        alert("It's time to pay, body.");
-        return;
-      }
-
-      if (!records.length) {
-        alert("Load the file first, please.");
-        return;
-      }
-
-      const record = {
-        title: result.substring(0, 40),
-        content: result,
-        clerkId: user.id,
-      };
       try {
+        const record = {
+          title: result.substring(0, 40),
+          content: result,
+          clerkId: user.id,
+        };
         const response = await fetch("/api/record/store", {
           method: "POST",
           headers: {
@@ -87,7 +105,7 @@ export default function Home() {
           },
           body: JSON.stringify({
             record: record,
-            recordsNumber: records.length || 0,
+            recordsNumber: records.length,
           }),
         });
 
@@ -100,9 +118,6 @@ export default function Home() {
           // update records history in the side panel
           if (result === "success") {
             fetchRecords(user);
-          }
-          if (result === "no-credits") {
-            alert("Not enough credits. Please buy more.");
           }
         }
       } catch (error) {
@@ -142,8 +157,70 @@ export default function Home() {
     }
   };
 
-  // prevent unnecessary db calls
+  const handleConvert = useCallback(async () => {
+    try {
+      setIsConverting(true);
+      if (!user) {
+        alert("Login or register, please.");
+        return;
+      }
+
+      if (!fileEncoded) {
+        alert("Load the file first, please.");
+        return;
+      }
+
+      const response = await fetch("/api/convert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileEncoded: fileEncoded,
+          fileMeta: fileMeta,
+          languageCode: selectedLanguage?.code,
+          clerkUserId: user.id,
+        }),
+      });
+
+      if (!response.ok) {
+        // alert("Something went wrong...");
+        console.error(`HTTP error! status: ${response.status}`);
+        return;
+      }
+      const data = await response.json();
+      if (data.data === "error") {
+        alert("This file cannot be converted.");
+        return;
+      }
+      if (data.data === "no-credits") {
+        alert("Not enough credits. Please buy more.");
+      }
+      const transcript = data.data.results[0].alternatives[0].transcript || "";
+      if (transcript) {
+        setResult(transcript);
+        handleStoreRecord(user, transcript, records);
+      } else {
+        alert("0 words were recognized.");
+      }
+    } catch (error) {
+      // alert("Something went wrong...");
+      console.error("Error converting the audio file:", error);
+    } finally {
+      setIsConverting(false);
+    }
+  }, [
+    fileEncoded,
+    fileMeta,
+    handleStoreRecord,
+    records,
+    selectedLanguage?.code,
+    user,
+  ]);
+
+  // prevent unnecessary db calls and load language
   useEffect(() => {
+    setSelectedLanguage(loadLanguage());
     setIsLoadedInit(true);
   }, []);
 
@@ -167,27 +244,43 @@ export default function Home() {
         className={`w-[500px] flex flex-col items-center px-8 my-20 overflow-y-auto`}
       >
         <h1 className='font-bold text-3xl mb-8'>Audio Transcription</h1>
+        <div className='mb-8'>
+          <LanguageSelector
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
+          />
+        </div>
         <div
           className='mb-8 px-8 py-12 border-2 border-dashed cursor-pointer'
           {...getRootProps()}
         >
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p className='text-gray-500'>Drop the files here ...</p>
+            <p className='text-gray-500'>Drop the file here...</p>
           ) : (
             <div className='text-gray-500 text-sm'>
-              <p>
-                Drag &#39;n&#39; drop a file here, or click to select a file
+              <p className='mb-4'>
+                Drag &#39;n&#39; drop a file here, or click to select a file.
               </p>
-              <p>Supported formats: MP3, WAV, M4A (max 25MB)</p>
+              <p className='mb-4'>
+                Supported formats: MP3, WAV, FLAC, OGG, RAW.
+              </p>
+              <p>File&apos;s max size is 10MB and max duration is 1 minute.</p>
             </div>
           )}
         </div>
-        {file && (
-          <div className='flex'>
+        {file != null && (
+          <div className='px-8 flex flex-col items-center'>
+            <p className='font-bold'>File name:</p>
+            <p className='mb-8'>{file.name}</p>
             <button
-              onClick={() => handleStoreRecord(user, result, records)}
-              className='w-full mx-6 px-6 py-2 text-center mb-8 text-white bg-blue-500 hover:bg-blue-600 rounded-md'
+              onClick={() => handleConvert()}
+              disabled={isConverting}
+              className={`w-fit mx-6 px-16 py-2 text-center mb-8 text-white bg-blue-500 rounded-md ${
+                isConverting
+                  ? "bg-blue-200 hover:bg-blue-300"
+                  : "hover:bg-blue-600"
+              }`}
             >
               Convert
             </button>
