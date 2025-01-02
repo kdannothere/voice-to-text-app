@@ -19,7 +19,7 @@ export default function Home() {
   const [isLoadedInit, setIsLoadedInit] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const { user } = useUser();
-  const { setCredits } = useContext(AppContext); 
+  const { setCredits } = useContext(AppContext);
   const [tier, setTier] = useState(TIER_1);
   const [file, setFile] = useState(null);
   const [fileEncoded, setFileEncoded] = useState("");
@@ -40,10 +40,10 @@ export default function Home() {
           const arrayBuffer = reader.result as ArrayBuffer;
           const base64EncodedAudio =
             Buffer.from(arrayBuffer).toString("base64");
-          setFileEncoded(base64EncodedAudio);
-          setFile(acceptedFile[0]);
           const { format } = await parseBuffer(Buffer.from(arrayBuffer));
           setFileMeta(format);
+          setFileEncoded(base64EncodedAudio);
+          setFile(acceptedFile[0]);
         }
       } catch (error) {
         console.error("Error reading audio properties:", error);
@@ -157,6 +157,7 @@ export default function Home() {
   const handleConvert = useCallback(async () => {
     try {
       setIsConverting(true);
+      setResult("");
       if (!user) {
         alert("Login or register, please.");
         return;
@@ -192,9 +193,10 @@ export default function Home() {
       }
       if (data.data === "no-credits") {
         alert("Not enough credits. Please buy more.");
+        return;
       }
       const transcript = data.data.results[0].alternatives[0].transcript || "";
-      setCredits(data.credits)
+      setCredits(data.credits);
       if (transcript) {
         setResult(transcript);
         handleStoreRecord(user, transcript, records);

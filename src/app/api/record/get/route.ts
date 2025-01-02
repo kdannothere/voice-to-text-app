@@ -17,6 +17,10 @@ export async function POST(req: Request) {
         where: {
           authorId: user.id,
         },
+        orderBy: {
+          updatedAt: "desc",
+        },
+        take: 10, // Limit the number of returned records
       });
       records = _records;
     }

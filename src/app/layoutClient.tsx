@@ -10,8 +10,6 @@ import {
 } from "@clerk/nextjs";
 import Credits from "./components/Credits";
 import { AppContextProvider } from "./AppContext";
-// todo show records by date, update date if record exists
-// delete music lib, use web api
 
 export default function Layout({
   children,

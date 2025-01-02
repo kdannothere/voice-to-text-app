@@ -27,19 +27,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const request = {
-      audio: {
-        content: fileEncoded,
-      },
-      config: {
-        languageCode: languageCode,
-        audioChannelCount: fileMeta?.numberOfChannels,
-        sampleRateHertz: fileMeta?.sampleRate,
-      },
-    };
-    const [response] = await speechClient.recognize(request);
-
     const creditsUpdated = user ? user.credits - 1 : 0;
+
     // take credits from user
     if (user) {
       await prisma.user.update({
@@ -51,6 +40,20 @@ export async function POST(req: Request) {
         },
       });
     }
+
+    const request = {
+      audio: {
+        content: fileEncoded,
+      },
+      config: {
+        languageCode: languageCode,
+        audioChannelCount: fileMeta?.numberOfChannels,
+        sampleRateHertz: fileMeta?.sampleRate,
+        enableSeparateRecognitionPerChannel: true,
+        profanityFilter: true,
+      },
+    };
+    const [response] = await speechClient.recognize(request);
 
     return new NextResponse(
       JSON.stringify({

@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     const record = data.record;
-    const recordExists = await prisma.record.findFirst({
+    const existingRecord = await prisma.record.findFirst({
       where: {
         title: record.title,
         content: record.content,
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     });
 
     // Create Record
-    if (!recordExists && user) {
+    if (!existingRecord && user) {
       const newRecord = {
         title: record.title,
         content: record.content,
@@ -28,6 +28,14 @@ export async function POST(req: Request) {
 
       await prisma.record.create({
         data: newRecord,
+      });
+    }
+
+    // if exists then update it
+    if (existingRecord && user) {
+      await prisma.record.update({
+        where: { id: existingRecord.id },
+        data: {title: existingRecord.title},
       });
     }
     return new NextResponse(JSON.stringify({ result: "success" }));
