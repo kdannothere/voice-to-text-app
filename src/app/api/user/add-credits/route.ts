@@ -12,20 +12,23 @@ export async function POST(req: Request) {
       },
     });
 
+    const creditsUpdated = user ? user.credits + credits : 0;
     // Add credits to user
-    if (user) {
+    if (user && creditsUpdated) {
       await prisma.user.update({
         where: {
           id: user.id,
         },
         data: {
-          credits: user.credits + credits,
+          credits: creditsUpdated,
         },
       });
     }
-    return new NextResponse(JSON.stringify({result: 'success'}));
+    return new NextResponse(
+      JSON.stringify({ result: "success", credits: creditsUpdated })
+    );
   } catch (error: any) {
     console.error("Error adding credits to user:", error.message);
-    return new NextResponse(JSON.stringify({result: 'error'}));
+    return new NextResponse(JSON.stringify({ result: "error" }));
   }
 }

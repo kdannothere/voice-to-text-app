@@ -1,24 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import Credits from "./components/Credits";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import LayoutClient from "./layoutClient";
 
 export const metadata: Metadata = {
   title: "Voice-To-Text App",
@@ -30,26 +12,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <ClerkProvider>
-      <html lang='en'>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <div className="flex justify-end">
-            <div className='pr-6 pt-6 pl-5 pb-4 rounded-bl-[2rem] border-l-8 border-b-8 font-bold hover:animate-pulse'>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-              <Credits />
-            </div>
-          </div>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
-  );
+  return <LayoutClient>{children}</LayoutClient>;
 }

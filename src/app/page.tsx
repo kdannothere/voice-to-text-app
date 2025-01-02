@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/nextjs";
 import { IFormat, parseBuffer } from "music-metadata";
@@ -12,6 +12,7 @@ import SidePanel from "./components/SidePanel";
 import { isFileFormatSupported } from "./utils/format-util";
 import { Language } from "./utils/languages";
 import LanguageSelector, { loadLanguage } from "./components/LanguageSelector";
+import { AppContext } from "./AppContext";
 
 // defaults
 const TIER_1 = 5;
@@ -23,6 +24,7 @@ export default function Home() {
   const [isLoadedInit, setIsLoadedInit] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const { user } = useUser();
+  const { setCredits } = useContext(AppContext); 
   const [tier, setTier] = useState(TIER_1);
   const [file, setFile] = useState(null);
   const [fileEncoded, setFileEncoded] = useState("");
@@ -197,6 +199,7 @@ export default function Home() {
         alert("Not enough credits. Please buy more.");
       }
       const transcript = data.data.results[0].alternatives[0].transcript || "";
+      setCredits(data.credits)
       if (transcript) {
         setResult(transcript);
         handleStoreRecord(user, transcript, records);

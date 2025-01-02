@@ -1,11 +1,12 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
+import { AppContext } from "../AppContext";
 
 export default function Credits({}) {
   const { user } = useUser();
-  const [credits, setCredits] = useState();
+  const { credits, setCredits } = useContext(AppContext); 
 
   const fetchCredits = useCallback(async (user) => {
     try {
@@ -34,7 +35,7 @@ export default function Credits({}) {
       alert("Something went wrong...");
       console.error("Error fetching the credits:", error);
     }
-  }, []);
+  }, [setCredits]);
 
   useEffect(() => {
     if (user) {

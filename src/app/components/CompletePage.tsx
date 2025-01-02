@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useStripe } from "@stripe/react-stripe-js";
 import Link from "next/link";
+import { AppContext } from "../AppContext";
 
 const SuccessIcon = (
   <svg
@@ -100,6 +101,8 @@ export default function CompletePage({
   const [status, setStatus] = useState("processing");
   const [intentId, setIntentId] = useState("");
 
+  const { setCredits } = useContext(AppContext);
+
   const addCreditsToUser = useCallback(
     async (userClerkId: string, userEmail: string) => {
       try {
@@ -115,7 +118,7 @@ export default function CompletePage({
           },
           body: JSON.stringify({
             clerkUser: clerkUser,
-            credits: Number(tier) * 10,
+            credits: Number(tier) * 10, // how many credits to add
           }),
         });
 
@@ -123,16 +126,16 @@ export default function CompletePage({
           alert("Something went wrong...");
           console.error(`HTTP error! status: ${response.status}`);
         }
-        const result = (await response.json()).result;
-        if (result === "success") {
-          // todo update credits amount
+        const data = await response.json();
+        if (data.result === "success") {
+          setCredits(data.credits)
         }
       } catch (error) {
         alert("Something went wrong...");
         console.error("Error associating user:", error);
       }
     },
-    [tier]
+    [setCredits, tier]
   );
 
   const storePayment = useCallback(

@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     };
     const [response] = await speechClient.recognize(request);
 
+    const creditsUpdated = user ? user.credits - 1 : 0;
     // take credits from user
     if (user) {
       await prisma.user.update({
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
           id: user.id,
         },
         data: {
-          credits: user.credits - 1,
+          credits: creditsUpdated,
         },
       });
     }
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
     return new NextResponse(
       JSON.stringify({
         data: response,
+        credits: creditsUpdated,
       })
     );
   } catch (error: any) {
