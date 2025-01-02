@@ -13,12 +13,7 @@ import { isFileFormatSupported } from "./utils/format-util";
 import { Language } from "./utils/languages";
 import LanguageSelector, { loadLanguage } from "./components/LanguageSelector";
 import { AppContext } from "./AppContext";
-
-// defaults
-const TIER_1 = 5;
-const TIER_2 = 20;
-const TIER_3 = 50;
-const TIER_4 = 100;
+import { TIER_1, TIER_2, TIER_3, TIER_4 } from "./utils/constants";
 
 export default function Home() {
   const [isLoadedInit, setIsLoadedInit] = useState(false);

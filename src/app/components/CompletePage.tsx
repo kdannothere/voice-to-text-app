@@ -92,7 +92,7 @@ export default function CompletePage({
   userClerkId,
   userEmail,
 }: {
-  tier: string;
+  tier: number;
   userClerkId: string;
   userEmail: string;
 }) {
@@ -102,41 +102,6 @@ export default function CompletePage({
   const [intentId, setIntentId] = useState("");
 
   const { setCredits } = useContext(AppContext);
-
-  const addCreditsToUser = useCallback(
-    async (userClerkId: string, userEmail: string) => {
-      try {
-        const clerkUser = {
-          id: userClerkId,
-          email: userEmail,
-        };
-
-        const response = await fetch("/api/user/add-credits", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            clerkUser: clerkUser,
-            credits: Number(tier) * 10, // how many credits to add
-          }),
-        });
-
-        if (!response.ok) {
-          alert("Something went wrong...");
-          console.error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (data.result === "success") {
-          setCredits(data.credits)
-        }
-      } catch (error) {
-        alert("Something went wrong...");
-        console.error("Error associating user:", error);
-      }
-    },
-    [setCredits, tier]
-  );
 
   const storePayment = useCallback(
     async (intentId: string, userClerkId: string, userEmail: string) => {
@@ -153,6 +118,7 @@ export default function CompletePage({
           body: JSON.stringify({
             intentId: intentId,
             userClerkId: userClerkId,
+            tier: tier, 
           }),
         });
 
@@ -160,16 +126,16 @@ export default function CompletePage({
           alert("Something went wrong...");
           console.error(`HTTP error! status: ${response.status}`);
         } else {
-          const result = (await response.json()).result;
+          const creditsUpdated = (await response.json()).creditsUpdated;
 
-          if (result === "success") addCreditsToUser(userClerkId, userEmail);
+          if (creditsUpdated) setCredits(creditsUpdated);
         }
       } catch (error) {
         alert("Something went wrong...");
         console.error("Error storing the payment:", error);
       }
     },
-    [addCreditsToUser]
+    [setCredits, tier]
   );
 
   // store payment in db

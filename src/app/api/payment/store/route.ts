@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../prismaClient";
 
+// store successful payment and add credits to user
 export async function POST(req: Request) {
   try {
     const data = await req.json();
     const intentId = data.intentId;
     const userClerkId = data.userClerkId;
+    const tier: number = data.tier;
     const paymentExists = await prisma.payment.findFirst({
       where: {
         intentId: intentId,
@@ -28,7 +30,21 @@ export async function POST(req: Request) {
       await prisma.payment.create({
         data: payment,
       });
-      return new NextResponse(JSON.stringify({ result: "success" }));
+
+      const creditsUpdated = user.credits + tier * 10;
+
+      // Add credits to user
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          credits: creditsUpdated,
+        },
+      });
+      return new NextResponse(
+        JSON.stringify({ result: "success", creditsUpdated: creditsUpdated })
+      );
     }
 
     if (paymentExists) {

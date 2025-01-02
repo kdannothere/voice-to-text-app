@@ -8,21 +8,23 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./../components/CheckoutForm";
 import CompletePage from "./../components/CompletePage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { TIER_1, TIER_4 } from "../utils/constants";
+import { AppContext } from "../AppContext";
 
 // avoid recreating the Stripe object on every render.
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
 );
 
-function getPrice(value: string): number {
+function getTier(value: string): number {
   const price = Number(value);
-  if (price > 0) {
+  if (price >= TIER_1 && price <= TIER_4) {
     return price;
   }
-  return 5;
+  return TIER_1;
 }
 
 export default function Page() {
@@ -32,6 +34,7 @@ export default function Page() {
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const { setCredits } = useContext(AppContext);
 
   const connectToStripe = useCallback(async () => {
     try {
@@ -41,10 +44,11 @@ export default function Page() {
         body: JSON.stringify({
           items: [
             {
-              name: `Support ${getPrice(tier)}`,
-              price: getPrice(tier) * 100,
+              name: `Support ${getTier(tier)}`,
+              price: getTier(tier) * 100, // ex. 5 * 100 = 5$
             },
           ],
+          tier: getTier(tier),
         }),
       });
 
@@ -53,8 +57,8 @@ export default function Page() {
         console.error(`HTTP error! status: ${response.status}`);
         return;
       }
-      const _clientSecret = (await response.json()).clientSecret;
-      setClientSecret(_clientSecret);
+      const data = await response.json();
+      setClientSecret(data?.clientSecret || "");
     } catch (error) {
       alert("Something went wrong...");
       console.error("Error connect to Stripe:", error);
@@ -63,11 +67,11 @@ export default function Page() {
 
   useEffect(() => {
     // go to main page because user didn't choose a tier
-  if (!tier) {
-    alert("Choose how much you want to pay, please.");
-    router.push("/");
-    return;
-  }
+    if (!tier) {
+      alert("Choose how much you want to pay, please.");
+      router.push("/");
+      return;
+    }
     // Create PaymentIntent as soon as the page loads
     connectToStripe();
   }, [connectToStripe, router, tier]);
@@ -99,7 +103,8 @@ export default function Page() {
                   <Elements options={options} stripe={stripePromise}>
                     {confirmed ? (
                       <CompletePage
-                        tier={tier}
+                      // make sure that tier is a valid number
+                        tier={getTier(tier)}
                         userClerkId={user.id}
                         userEmail={user.emailAddresses[0].emailAddress}
                       />

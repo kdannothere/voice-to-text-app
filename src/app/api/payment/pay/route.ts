@@ -14,10 +14,9 @@ const calculateOrderAmount = (items) => {
 };
 
 export async function POST(req: Request) {
-  let clientSecret = null;
-
   try {
-    const items = (await req.json()).items;
+    const data = await req.json();
+    const items = data.items;
 
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
         enabled: true,
       },
     });
-    clientSecret = paymentIntent.client_secret;
+    const clientSecret = paymentIntent.client_secret;
     return new NextResponse(
       JSON.stringify({
         clientSecret: clientSecret,
@@ -36,10 +35,9 @@ export async function POST(req: Request) {
     );
   } catch (error: any) {
     console.error("Payment error:", error.message);
-  } finally {
     return new NextResponse(
       JSON.stringify({
-        clientSecret: clientSecret,
+        clientSecret: null,
       })
     );
   }
