@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useStripe } from "@stripe/react-stripe-js";
 import Link from "next/link";
 import { AppContext } from "../AppContext";
+import { getSearchParams } from "../payment/page";
 
 const SuccessIcon = (
   <svg
@@ -163,9 +164,7 @@ export default function CompletePage({
       return;
     }
 
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
-    );
+    const clientSecret = getSearchParams()?.get("payment_intent_client_secret");
 
     if (!clientSecret) {
       return;
@@ -221,7 +220,11 @@ export default function CompletePage({
           className='border-2 p-2 m-2 rounded-lg bg-slate-200 hover:bg-slate-300 flex w-fit'
           href='/'
           // reload page in order to update the credits value
-          onClick={() => (window.location.href = "/")}
+          onClick={() => {
+            if (window) {
+              window.location.href = "/";
+            }
+          }}
         >
           Back to service
         </Link>

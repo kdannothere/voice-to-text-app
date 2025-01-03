@@ -26,13 +26,17 @@ function getTier(value: string): number {
   return TIER_1;
 }
 
+export function getSearchParams() {
+  if (typeof window !== "undefined") {
+    return new URLSearchParams(window.location.search);
+  }
+  return null; // Or handle the server-side case appropriately
+}
+
 export default function Page() {
   const router = useRouter();
-  const searchParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    []
-  );
-  const tier = searchParams.get("tier") || "";
+  const searchParams = useMemo(() => getSearchParams(), []);
+  const tier = searchParams?.get("tier") || "";
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -78,7 +82,7 @@ export default function Page() {
   }, [connectToStripe, router, tier]);
 
   useEffect(() => {
-    setConfirmed(searchParams.get("payment_intent_client_secret") !== null);
+    setConfirmed(searchParams?.get("payment_intent_client_secret") !== null);
   }, [clientSecret, setConfirmed, searchParams]);
 
   const appearance: Appearance = {

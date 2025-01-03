@@ -29,7 +29,9 @@ export default function CheckoutForm({ tier }: { tier: string }) {
       elements,
       confirmParams: {
         // path to payment completion page
-        return_url: `${window.location.origin}/payment?tier=${tier}`,
+        return_url: window
+          ? `${window.location.origin}/payment?tier=${tier}`
+          : "",
       },
     });
 
