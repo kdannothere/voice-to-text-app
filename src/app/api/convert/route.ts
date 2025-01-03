@@ -6,7 +6,10 @@ import { prisma } from "../prismaClient";
 export async function POST(req: Request) {
   try {
     const speechClient = new SpeechClient({
-      keyFile: process.env.GOOGLE_CLOUD_SPEECH_TO_TEXT_KEY_PATH,
+      keyFile:
+        process.env.GOOGLE_CLOUD_SPEECH_TO_TEXT_KEY_1 ||
+        "" + process.env.GOOGLE_CLOUD_SPEECH_TO_TEXT_KEY_2 ||
+        "",
     });
     const data = await req.json();
     const fileEncoded: string = data.fileEncoded;
