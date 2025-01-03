@@ -64,28 +64,40 @@ const InfoIcon = (
   </svg>
 );
 
-const STATUS_CONTENT_MAP = {
-  succeeded: {
-    text: "Payment succeeded",
-    iconColor: "#30B130",
-    icon: SuccessIcon,
-  },
-  processing: {
-    text: "Your payment is processing.",
-    iconColor: "#6D6E78",
-    icon: InfoIcon,
-  },
-  requires_payment_method: {
-    text: "Your payment was not successful, please try again.",
-    iconColor: "#DF1B41",
-    icon: ErrorIcon,
-  },
-  default: {
-    text: "Something went wrong, please try again.",
-    iconColor: "#DF1B41",
-    icon: ErrorIcon,
-  },
-};
+interface StaticContent {
+  text: string;
+  iconColor: string;
+  icon: React.JSX.Element;
+}
+
+function getStaticContent(status: string): StaticContent {
+  switch (status) {
+    case "succeeded":
+      return {
+        text: "Payment succeeded",
+        iconColor: "#30B130",
+        icon: SuccessIcon,
+      };
+    case "processing":
+      return {
+        text: "Your payment is processing.",
+        iconColor: "#6D6E78",
+        icon: InfoIcon,
+      };
+    case "requires_payment_method":
+      return {
+        text: "Your payment was not successful, please try again.",
+        iconColor: "#DF1B41",
+        icon: ErrorIcon,
+      };
+    default:
+      return {
+        text: "Something went wrong, please try again.",
+        iconColor: "#DF1B41",
+        icon: ErrorIcon,
+      };
+  }
+}
 
 export default function CompletePage({
   tier,
@@ -118,7 +130,7 @@ export default function CompletePage({
           body: JSON.stringify({
             intentId: intentId,
             userClerkId: userClerkId,
-            tier: tier, 
+            tier: tier,
           }),
         });
 
@@ -173,11 +185,11 @@ export default function CompletePage({
     <div id='payment-status' className='border-4 p-8 rounded-sm'>
       <div
         id='status-icon'
-        style={{ backgroundColor: STATUS_CONTENT_MAP[status].iconColor }}
+        style={{ backgroundColor: getStaticContent(status).iconColor }}
       >
-        {STATUS_CONTENT_MAP[status].icon}
+        {getStaticContent(status).icon}
       </div>
-      <h2 className='mb-4'>{STATUS_CONTENT_MAP[status].text}</h2>
+      <h2 className='mb-4'>{getStaticContent(status).text}</h2>
       {intentId && (
         <div id='details-table' className='mb-4'>
           <table>
