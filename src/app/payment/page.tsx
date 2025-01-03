@@ -8,8 +8,8 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./../components/CheckoutForm";
 import CompletePage from "./../components/CompletePage";
-import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { TIER_1, TIER_4 } from "../utils/constants";
 
@@ -28,7 +28,10 @@ function getTier(value: string): number {
 
 export default function Page() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    []
+  );
   const tier = searchParams.get("tier") || "";
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
