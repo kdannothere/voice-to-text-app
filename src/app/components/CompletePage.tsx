@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useStripe } from "@stripe/react-stripe-js";
 import Link from "next/link";
 import { AppContext } from "../AppContext";
-import { getSearchParams } from "../payment/page";
+import { getSearchParams } from "../utils/helpers";
 
 const SuccessIcon = (
   <svg

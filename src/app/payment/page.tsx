@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { TIER_1, TIER_4 } from "../utils/constants";
+import { getSearchParams } from "../utils/helpers";
 
 // avoid recreating the Stripe object on every render.
 const stripePromise = loadStripe(
@@ -24,13 +25,6 @@ function getTier(value: string): number {
     return price;
   }
   return TIER_1;
-}
-
-export function getSearchParams() {
-  if (typeof window !== "undefined") {
-    return new URLSearchParams(window.location.search);
-  }
-  return null; // Or handle the server-side case appropriately
 }
 
 export default function Page() {
