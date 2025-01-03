@@ -2,6 +2,8 @@ import React, { createContext, useState } from 'react';
 
 export const AppContext = createContext({
   credits: 0,
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setCredits: (credits: number) => {}
 });
 

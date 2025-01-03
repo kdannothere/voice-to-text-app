@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       });
       records = _records;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error fetching the records:", error.message);
   } finally {

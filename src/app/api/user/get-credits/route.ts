@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     }
 
     return new NextResponse(JSON.stringify({ result: "user-not-found" }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error adding credits to user:", error.message);
     return new NextResponse(JSON.stringify({ result: "error" }));

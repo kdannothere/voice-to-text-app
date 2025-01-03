@@ -8,11 +8,10 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./../components/CheckoutForm";
 import CompletePage from "./../components/CompletePage";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { TIER_1, TIER_4 } from "../utils/constants";
-import { AppContext } from "../AppContext";
 
 // avoid recreating the Stripe object on every render.
 const stripePromise = loadStripe(
@@ -30,11 +29,10 @@ function getTier(value: string): number {
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [tier, setTier] = useState(searchParams.get("tier") || "");
+  const tier = searchParams.get("tier") || "";
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
-  const { setCredits } = useContext(AppContext);
 
   const connectToStripe = useCallback(async () => {
     try {
@@ -103,7 +101,7 @@ export default function Page() {
                   <Elements options={options} stripe={stripePromise}>
                     {confirmed ? (
                       <CompletePage
-                      // make sure that tier is a valid number
+                        // make sure that tier is a valid number
                         tier={getTier(tier)}
                         userClerkId={user.id}
                         userEmail={user.emailAddresses[0].emailAddress}

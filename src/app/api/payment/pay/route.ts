@@ -3,7 +3,8 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
-const calculateOrderAmount = (items) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const calculateOrderAmount = (items: any) => {
   // Replace this constant with a calculation of the order's amount
   // Calculate the order total on the server to prevent
   // people from directly manipulating the amount on the client
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
         clientSecret: clientSecret,
       })
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Payment error:", error.message);
     return new NextResponse(

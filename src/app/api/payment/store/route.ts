@@ -53,6 +53,8 @@ export async function POST(req: Request) {
 
     // unexpected result
     return new NextResponse(JSON.stringify({ result: "unexpected" }));
+    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error storing a payment:", error.message);
     return new NextResponse(JSON.stringify({ result: "error" }));

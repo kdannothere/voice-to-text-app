@@ -39,6 +39,7 @@ export async function POST(req: Request) {
       });
     }
     return new NextResponse(JSON.stringify({ result: "success" }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error storing a record:", error.message);
     return new NextResponse(JSON.stringify({ result: "error" }));

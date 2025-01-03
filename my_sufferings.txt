@@ -1,3 +1,7 @@
 1. Put middleware.ts into /src/app (wrong) instead of /src (correct)
-2. Problems with requests to the server
-3. Problems with db (db wasn`t working, wasn`t checking for uniques)
+2. Problems with requests to the server (because I didn't have much experience with requests before)
+3. Problems with db (I wasn`t checking for uniques)
+
+4. Problems with google speech api.
+Why: It doesn't work with some files because of the service limitations.
+Solutions: use some more speech api services or convert files into supported encodings.

@@ -61,6 +61,7 @@ export async function POST(req: Request) {
         credits: creditsUpdated,
       })
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error during converting:", error.message);
     return new NextResponse(

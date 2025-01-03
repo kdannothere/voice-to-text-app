@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { languages, defaultLanguage, Language } from "../utils/languages";
 
 export default function LanguageSelector({
@@ -5,9 +6,9 @@ export default function LanguageSelector({
   setSelectedLanguage,
 }: {
   selectedLanguage: Language | null;
-  setSelectedLanguage;
+  setSelectedLanguage: any;
 }) {
-  const handleChange = (event) => {
+  const handleChange = (event: any) => {
     const selectedLanguage =
       languages.find((lang) => lang.label === event.target.value) ||
       defaultLanguage;

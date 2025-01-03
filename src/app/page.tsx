@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -21,7 +22,7 @@ export default function Home() {
   const { user } = useUser();
   const { setCredits } = useContext(AppContext);
   const [tier, setTier] = useState(TIER_1);
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<any>(null);
   const [fileEncoded, setFileEncoded] = useState("");
   const [fileMeta, setFileMeta] = useState<IFormat | null>(null);
   const [result, setResult] = useState("");
@@ -31,7 +32,7 @@ export default function Home() {
     null
   );
 
-  const onDrop = useCallback((acceptedFile) => {
+  const onDrop = useCallback((acceptedFile: any) => {
     const reader = new FileReader();
 
     reader.onload = async () => {
@@ -215,6 +216,7 @@ export default function Home() {
     handleStoreRecord,
     records,
     selectedLanguage?.code,
+    setCredits,
     user,
   ]);
 

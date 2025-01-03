@@ -1,7 +1,6 @@
 import { prisma } from "../../prismaClient";
 import { NextResponse } from "next/server";
 
-
 export async function POST(req: Request) {
   try {
     const clerkUser = await req.json();
@@ -41,6 +40,7 @@ export async function POST(req: Request) {
         });
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error associating user:", error.message);
   } finally {
