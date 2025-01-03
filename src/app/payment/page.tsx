@@ -8,7 +8,7 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./../components/CheckoutForm";
 import CompletePage from "./../components/CompletePage";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { TIER_1, TIER_4 } from "../utils/constants";
@@ -29,14 +29,15 @@ function getTier(value: string): number {
 
 export default function Page() {
   const router = useRouter();
-  const searchParams = useMemo(() => getSearchParams(), []);
-  const tier = searchParams?.get("tier") || "";
+  // const searchParams = useMemo(() => getSearchParams(), []);
+  // const tier = searchParams?.get("tier") || "";
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
   const connectToStripe = useCallback(async () => {
     try {
+      const tier = getSearchParams()?.get("tier") || "";
       const response = await fetch("/api/payment/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +63,7 @@ export default function Page() {
       alert("Something went wrong...");
       console.error("Error connect to Stripe:", error);
     }
-  }, [tier]);
+  }, []);
 
   useEffect(() => {
     // go to main page because user didn't choose a tier
@@ -74,11 +75,13 @@ export default function Page() {
 
     // Create PaymentIntent as soon as the page loads
     connectToStripe();
-  }, [connectToStripe, router, tier]);
+  }, [connectToStripe, router]);
 
   useEffect(() => {
-    setConfirmed(searchParams?.get("payment_intent_client_secret") !== null);
-  }, [clientSecret, setConfirmed, searchParams]);
+    setConfirmed(
+      getSearchParams()?.get("payment_intent_client_secret") !== null
+    );
+  }, [clientSecret, setConfirmed]);
 
   const appearance: Appearance = {
     theme: "stripe",
@@ -104,12 +107,14 @@ export default function Page() {
                     {confirmed ? (
                       <CompletePage
                         // make sure that tier is a valid number
-                        tier={getTier(tier)}
+                        tier={getTier(getSearchParams()?.get("tier") || "")}
                         userClerkId={user.id}
                         userEmail={user.emailAddresses[0].emailAddress}
                       />
                     ) : (
-                      <CheckoutForm tier={tier} />
+                      <CheckoutForm
+                        tier={getSearchParams()?.get("tier") || ""}
+                      />
                     )}
                   </Elements>
                 </>
