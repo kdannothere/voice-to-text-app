@@ -10,10 +10,13 @@ export async function POST(req: Request) {
     );
 
     // Create a Blob object with the JSON string and specify the content type
-    const blob = new Blob([jsonString], { type: "application/json" });
+    const blob = new Blob([jsonString], { type: "text/plain" });
+    const file = new File([blob], "voice-to-text-446221-33b1d409a2f8.json", {
+      type: blob.type,
+    });
 
-    // Create a URL for the Blob object
-    const fileURL = URL.createObjectURL(blob);
+    // Create a URL for the File object
+    const fileURL = URL.createObjectURL(file);
 
     const speechClient = new SpeechClient({
       keyFile: fileURL,
