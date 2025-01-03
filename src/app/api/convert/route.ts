@@ -5,9 +5,20 @@ import { prisma } from "../prismaClient";
 
 export async function POST(req: Request) {
   try {
+    const jsonString = JSON.stringify(
+      process.env.GOOGLE_CLOUD_SPEECH_TO_TEXT_KEY || {}
+    );
+
+    // Create a Blob object with the JSON string and specify the content type
+    const blob = new Blob([jsonString], { type: "application/json" });
+
+    // Create a URL for the Blob object
+    const fileURL = URL.createObjectURL(blob);
+
     const speechClient = new SpeechClient({
-      keyFile: process.env.GOOGLE_CLOUD_SPEECH_TO_TEXT_KEY || "",
+      keyFile: fileURL,
     });
+
     const data = await req.json();
     const fileEncoded: string = data.fileEncoded;
     const fileMeta: IFormat = data.fileMeta;
