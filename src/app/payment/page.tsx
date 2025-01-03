@@ -66,11 +66,12 @@ export default function Page() {
 
   useEffect(() => {
     // go to main page because user didn't choose a tier
-    if (!tier) {
-      alert("Choose how much you want to pay, please.");
-      router.push("/");
-      return;
-    }
+    // if (!tier) {
+    //   alert("Choose how much you want to pay, please.");
+    //   router.push("/");
+    //   return;
+    // }
+
     // Create PaymentIntent as soon as the page loads
     connectToStripe();
   }, [connectToStripe, router, tier]);

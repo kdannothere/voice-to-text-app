@@ -49,8 +49,11 @@ export default function Credits({}) {
 
   return (
     <>
-      {user && credits && (
-        <p className='text-nowrap text-center'>Credits: {credits}</p>
+      {user && (
+        <p className='flex flex-nowrap justify-center'>
+          <span className='pr-1'>Credits:</span>
+          <span>{credits.toString()}</span>
+        </p>
       )}
     </>
   );
