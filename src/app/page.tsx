@@ -79,11 +79,11 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        alert("Something went wrong...");
+        // alert("Something went wrong...");
         console.error(`HTTP error! status: ${response.status}`);
       }
     } catch (error: any) {
-      alert("Something went wrong...");
+      // alert("Something went wrong...");
       console.error("Error associating user:", error.message);
     }
   }, []);
@@ -103,7 +103,7 @@ export default function Home() {
         body: JSON.stringify(user),
       });
       if (!response.ok) {
-        alert("Something went wrong...");
+        // alert("Something went wrong...");
         console.error(`HTTP error! status: ${response.status}`);
       }
       const _data = await response.json();
@@ -112,7 +112,7 @@ export default function Home() {
         setRecords(data[0]);
       }
     } catch (error: any) {
-      alert("Something went wrong...");
+      // alert("Something went wrong...");
       console.error("Error fetching the records:", error.message);
     }
   }, []);
@@ -137,7 +137,7 @@ export default function Home() {
         });
 
         if (!response.ok) {
-          alert("Something went wrong...");
+          // alert("Something went wrong...");
           console.error(`HTTP error! status: ${response.status}`);
         } else {
           const result = (await response.json()).result;
@@ -148,7 +148,7 @@ export default function Home() {
           }
         }
       } catch (error: any) {
-        alert("Something went wrong...");
+        // alert("Something went wrong...");
         console.error("Error storing the record:", error.message);
       }
     },
