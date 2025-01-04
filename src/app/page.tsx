@@ -46,8 +46,8 @@ export default function Home() {
           setFileEncoded(base64EncodedAudio);
           setFile(acceptedFile[0]);
         }
-      } catch (error) {
-        console.error("Error reading audio properties:", error);
+      } catch (error: any) {
+        console.error("Error reading audio properties:", error.message);
       }
     };
     if (isFileFormatSupported(acceptedFile[0].name)) {
@@ -82,9 +82,38 @@ export default function Home() {
         alert("Something went wrong...");
         console.error(`HTTP error! status: ${response.status}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       alert("Something went wrong...");
-      console.error("Error associating user:", error);
+      console.error("Error associating user:", error.message);
+    }
+  }, []);
+
+  const fetchRecords = useCallback(async (user: any) => {
+    if (!user) {
+      alert("Login or register, please.");
+      return;
+    }
+    const data = [];
+    try {
+      const response = await fetch("/api/record/get", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+      if (!response.ok) {
+        alert("Something went wrong...");
+        console.error(`HTTP error! status: ${response.status}`);
+      }
+      const _data = await response.json();
+      if (_data && _data.length) {
+        data.push(_data);
+        setRecords(data[0]);
+      }
+    } catch (error: any) {
+      alert("Something went wrong...");
+      console.error("Error fetching the records:", error.message);
     }
   }, []);
 
@@ -118,42 +147,13 @@ export default function Home() {
             fetchRecords(user);
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         alert("Something went wrong...");
-        console.error("Error storing the record:", error);
+        console.error("Error storing the record:", error.message);
       }
     },
-    []
+    [fetchRecords]
   );
-
-  const fetchRecords = useCallback(async (user: any) => {
-    if (!user) {
-      alert("Login or register, please.");
-      return;
-    }
-    const data = [];
-    try {
-      const response = await fetch("/api/record/get", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
-      if (!response.ok) {
-        alert("Something went wrong...");
-        console.error(`HTTP error! status: ${response.status}`);
-      }
-      const _data = await response.json();
-      if (_data && _data.length) {
-        data.push(_data);
-        setRecords(data[0]);
-      }
-    } catch (error) {
-      alert("Something went wrong...");
-      console.error("Error fetching the records:", error);
-    }
-  }, []);
 
   const handleConvert = useCallback(async () => {
     try {
@@ -204,9 +204,9 @@ export default function Home() {
       } else {
         alert("0 words were recognized.");
       }
-    } catch (error) {
+    } catch (error: any) {
       // alert("Something went wrong...");
-      console.error("Error converting the audio file:", error);
+      console.error("Error converting the audio file:", error.message);
     } finally {
       setIsConverting(false);
     }
@@ -230,14 +230,14 @@ export default function Home() {
     if (isLoadedInit && user) {
       handleAssociateUser(user);
     }
-  }, [isLoadedInit, user]);
+  }, [handleAssociateUser, isLoadedInit, user]);
 
   useEffect(() => {
     if (isLoadedInit && loadingRecords && user) {
       fetchRecords(user);
       setLoadingRecords(false);
     }
-  }, [isLoadedInit, loadingRecords, user]);
+  }, [fetchRecords, isLoadedInit, loadingRecords, user]);
 
   return (
     <div className='flex justify-center items-center min-h-[100vh]'>
