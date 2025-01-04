@@ -29,8 +29,6 @@ function getTier(value: string): number {
 
 export default function Page() {
   const router = useRouter();
-  // const searchParams = useMemo(() => getSearchParams(), []);
-  // const tier = searchParams?.get("tier") || "";
   const { user, isLoaded } = useUser();
   const [clientSecret, setClientSecret] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -66,13 +64,6 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    // go to main page because user didn't choose a tier
-    // if (!tier) {
-    //   alert("Choose how much you want to pay, please.");
-    //   router.push("/");
-    //   return;
-    // }
-
     // Create PaymentIntent as soon as the page loads
     connectToStripe();
   }, [connectToStripe, router]);

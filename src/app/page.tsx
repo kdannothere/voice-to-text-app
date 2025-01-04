@@ -61,7 +61,7 @@ export default function Home() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleAssociateUser = async (user: any) => {
+  const handleAssociateUser = useCallback(async (user: any) => {
     if (!user) return;
 
     const clerkUser = {
@@ -86,7 +86,7 @@ export default function Home() {
       alert("Something went wrong...");
       console.error("Error associating user:", error);
     }
-  };
+  }, []);
 
   const handleStoreRecord = useCallback(
     async (user: any, result: string, records: any) => {
@@ -126,7 +126,7 @@ export default function Home() {
     []
   );
 
-  const fetchRecords = async (user: any) => {
+  const fetchRecords = useCallback(async (user: any) => {
     if (!user) {
       alert("Login or register, please.");
       return;
@@ -153,7 +153,7 @@ export default function Home() {
       alert("Something went wrong...");
       console.error("Error fetching the records:", error);
     }
-  };
+  }, []);
 
   const handleConvert = useCallback(async () => {
     try {
